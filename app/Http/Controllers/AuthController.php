@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
-
-
 use App\Models\User;
+
+
 
 class AuthController extends Controller
 {
@@ -33,6 +33,33 @@ class AuthController extends Controller
         ];
 
         return response($response, 201);
+    }
+
+
+    public function login(Request $request){
+
+        $field = $request->validate([
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $field['email'])->first();
+
+        if(!$user || !Hash::check($field['password'], $user->password)){
+            return response([
+                'message' => "Wrond Credentials"
+            ],401);
+        }
+
+        $token = $user->createToken('myapptoken')->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+
+        return response($response, 201);
+
     }
 
 
